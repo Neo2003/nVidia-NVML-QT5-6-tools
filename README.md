@@ -5,7 +5,7 @@ NVML is a library which comes with nVidia drivers, it does only talk to the driv
 With NVML, you can query or command your nVidia cards on Linux without any display technology, for example nVidia Setting is limited to X11 on Linux.<br/>
 NVML works fine with Wayland or Windows or even a tty.
 
-nVidia did a lot of work on the NVML library for the gaming cards, it is not limited to the professionnal ones anymore.
+nVidia did a lot of work on the NVML library for the gaming cards, it is not limited to the professional ones anymore.
 
 It is not that difficult to use the NVML library from a C++ program, but most of the people do not know where to start.<br/>
 So is the goal of this repository.
@@ -54,7 +54,7 @@ Command functions: https://docs.nvidia.com/deploy/nvml-api/group__nvmlDeviceComm
 You can expand this example as much as you want.<br/>
 Just know that command functions require root privilege for most of them.
 
-This then transitionate well with the next one: A fan controler I wrote years ago using nVidia X tools, and ported to NVML recently when Gentoo (The linux I am using) migrated from Plasma 5 to Plasma 6.1. I feel the need to switch from Xorg to Wayland and I had to suffer from nVidia tools not working anymore. So I then ported my fan tool to NVML.
+This then transition well with the next one: A fan controller I wrote years ago using nVidia X tools, and ported to NVML recently when Gentoo (The linux I am using) migrated from Plasma 5 to Plasma 6.1. I feel the need to switch from Xorg to Wayland and I had to suffer from nVidia tools not working anymore. So I then ported my fan tool to NVML.
 
 ## Simple Fan custom curve application
 My graphic card is a powerful one but not a proper made one. It's a Zotac RTX 3090 TI OC and it does not have a proper fan curve.<br/>
@@ -72,15 +72,15 @@ To activate nvidia-setting in user mode, root account must be used to configure 
 Since NVML does not require any graphic system, there is nothing to attach a coolbit to. nVidia then decided that only a privileged user can launch most of the commands.
 
 ### 2 processes: user interface and root background process
-The main application is a user application, it does use NVML to query the card temperature and power consompsion to draw graphics, then it comptes fans speed but cannot command the card.
+The main application is a user application, it does use NVML to query the card temperature and power consumption to draw graphics, then it computes fans speed but cannot command the card.
 
 That is why there is a second program in the Subprocess folder, it's a QT Core Application and does not have any interface. This process will be launched with root privileges and is the interface between the main graphic interface program and the NVLM library to sent commands.
 
-This program is simple, it runs forever running an event loop. It listens to STDIN, parses incomming messages and uses NVML commands.
+This program is simple, it runs forever running an event loop. It listens to STDIN, parses incoming messages and uses NVML commands.
 I implemented only 1 command to set fans speed. The message is in this format "V,0,0,64" which is "V" for ventilation, card number, fan number, fan speed. This command would set the 1st fan of the first card to 64%.
 
 ### Compiling and setting up the root process
-This small applcation uses CMake
+This small application uses CMake
 
 ```
 cd Subprocess
@@ -99,10 +99,10 @@ sudo chmod u+s nvmlCmd
 The first command will set root as the owner of this program, the second will activate the flag so that the executable is always run as the file owner.<br/>
 As a result since the file belongs to root, it will be run as root without asking any password.
 
-### Compiling the simple fan controler program
+### Compiling the simple fan controller program
 This program has a QT graphic interface, so I used QMake to build it.
 ```
-cd SimpleFanControler
+cd SimpleFanController
 qmake6 -o Makefile NvControl.pro
 make
 ```
@@ -123,7 +123,7 @@ root      7591  0.0  0.0  71984 24860 ?        S    08:55   0:00 ./nvmlCmd
 ```
 
 ## Words of caution
-These 3 programs are not designed to be used "as is". This fan controler program was done for my specific card in my specific PC. Setting bad fans speed can lead to a burned card.<br/>
+These 3 programs are not designed to be used "as is". This fan controller program was done for my specific card in my specific PC. Setting bad fans speed can lead to a burned card.<br/>
 I can't be held responsible for the bad usages done with this code.
 
 ## Overclocking
