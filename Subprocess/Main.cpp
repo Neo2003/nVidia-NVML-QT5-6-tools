@@ -7,11 +7,7 @@
 #include "../include/nvml.h"
 
 typedef int (*Init)();
-typedef int (*GetDeviceCount)(unsigned int*);
 typedef int (*DeviceGetHandleByIndex)(unsigned int, nvmlDevice_t*);
-typedef int (*DeviceGetName)(nvmlDevice_t,char*,int);
-typedef int (*DeviceGetTemperature)(nvmlDevice_t,nvmlTemperatureSensors_t,unsigned int*);
-typedef int (*DeviceSetFanControlPolicy)(nvmlDevice_t,unsigned int,nvmlFanControlPolicy_t);
 typedef int (*DeviceSetFanSpeed)(nvmlDevice_t,unsigned int,unsigned int);
 
 class nvwrite : public QObject
@@ -27,18 +23,14 @@ class nvwrite : public QObject
             QLibrary nvmlLib("libnvidia-ml.so.1");
             Init nvmlInit = (Init)nvmlLib.resolve("nvmlInit_v2");
             nvmlDeviceGetHandleByIndex = (DeviceGetHandleByIndex)nvmlLib.resolve("nvmlDeviceGetHandleByIndex_v2");
-            nvmlDeviceGetTemperature =(DeviceGetTemperature)nvmlLib.resolve("nvmlDeviceGetTemperature");
             nvmlDeviceSetFanSpeed =(DeviceSetFanSpeed)nvmlLib.resolve("nvmlDeviceSetFanSpeed_v2");
-            nvmlDeviceSetFanControlPolicy =(DeviceSetFanControlPolicy)nvmlLib.resolve("nvmlDeviceSetFanControlPolicy");
             
             nvmlInit();
         }
 
     private:
         DeviceGetHandleByIndex nvmlDeviceGetHandleByIndex;
-        DeviceGetTemperature nvmlDeviceGetTemperature;
         DeviceSetFanSpeed nvmlDeviceSetFanSpeed;
-        DeviceSetFanControlPolicy nvmlDeviceSetFanControlPolicy;
         
         void setFan(unsigned int cardnb, unsigned int fannb, unsigned int value)
         {
