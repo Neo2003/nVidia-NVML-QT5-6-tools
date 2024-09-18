@@ -31,11 +31,13 @@ Card 0 encoder capacity
   H264: 100%, HEVC: 100%, AV1: 0%
 Card 0 die temperature: 49°C
 Card 0 power usage: 319.39 W (319395 mW)
+Card 0 Encoder usage: 100% over 200000 us
+Card 0 Decoder usage: 32% over 200000 us
 Card 0 die clock 1965 Mhz, RAM clock 9751 Mhz
 Card 0 has 2 fans
   Card 0 fan 0 speed: 46%
   Card 0 fan 1 speed: 45%
-Card 0 clock offsets:
+Card 0 clock allowed offsets:
   RAM min -2000, RAM max 6000
   GPC min -1000, GPC max 1000
 Card 0 current offset RAM 0, GPC 0

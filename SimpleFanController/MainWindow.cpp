@@ -183,7 +183,7 @@ void MainWindow::UpdateData()
     serie->setPen(penF);
     
     prevTemp = TempValue;
-    QString s_output = QString::asprintf(" Temp: %u°C, Power draw %0.1fW -> Fan: %u% | Min: %u°C, %0.1fW | Max: %u°C, %0.1fW   ", TempValue, WattValue, fanvalue, MinTemp, MinPower, MaxTemp, MaxPower);
+    QString s_output = QString::asprintf(" Temp: %u°C, Power draw %0.1fW -> Fan: %u%% | Min: %u°C, %0.1fW | Max: %u°C, %0.1fW   ", TempValue, WattValue, fanvalue, MinTemp, MinPower, MaxTemp, MaxPower);
     StatusLabel->setText(s_output);
     StatusLabel->repaint();
 }
