@@ -27,6 +27,7 @@ typedef nvmlReturn_t (*DeviceGetMemoryInfo)(nvmlDevice_t,nvmlMemory_t*);
 typedef nvmlReturn_t (*DeviceGetGpcClkMinMaxVfOffset)(nvmlDevice_t,int*,int*);
 typedef nvmlReturn_t (*DeviceGetMemClkMinMaxVfOffset)(nvmlDevice_t,int*,int*);
 typedef nvmlReturn_t (*DeviceGetPowerManagementLimit)(nvmlDevice_t,unsigned int*);
+typedef nvmlReturn_t (*DeviceGetPowerManagementDefaultLimit)(nvmlDevice_t,unsigned int*);
 typedef nvmlReturn_t (*DeviceGetMemClkVfOffset)(nvmlDevice_t,int*);
 typedef nvmlReturn_t (*DeviceGetGpcClkVfOffset)(nvmlDevice_t,int*);
 typedef nvmlReturn_t (*SystemGetDriverVersion)(char*,unsigned int);
@@ -34,6 +35,9 @@ typedef nvmlReturn_t (*SystemGetNVMLVersion)(char*,unsigned int);
 typedef nvmlReturn_t (*DeviceGetEncoderCapacity)(nvmlDevice_t,nvmlEncoderType_t,unsigned int*);
 typedef nvmlReturn_t (*DeviceGetEncoderUtilization)(nvmlDevice_t,unsigned int*,unsigned int*);
 typedef nvmlReturn_t (*DeviceGetDecoderUtilization)(nvmlDevice_t,unsigned int*,unsigned int*);
+typedef nvmlReturn_t (*DeviceSetPowerManagementLimit)(nvmlDevice_t,unsigned int);
+typedef nvmlReturn_t (*DeviceGetUtilizationRates)(nvmlDevice_t,nvmlUtilization_t*);
+typedef nvmlReturn_t (*DeviceGetVbiosVersion)(nvmlDevice_t,char*, unsigned int);
 
 int main(int argc, char *argv[])
 {
@@ -60,6 +64,7 @@ int main(int argc, char *argv[])
     DeviceGetGpcClkMinMaxVfOffset nvmlDeviceGetGpcClkMinMaxVfOffset = (DeviceGetGpcClkMinMaxVfOffset)nvmlLib.resolve("nvmlDeviceGetGpcClkMinMaxVfOffset");
     DeviceGetMemClkMinMaxVfOffset nvmlDeviceGetMemClkMinMaxVfOffset = (DeviceGetMemClkMinMaxVfOffset)nvmlLib.resolve("nvmlDeviceGetMemClkMinMaxVfOffset");
     DeviceGetPowerManagementLimit nvmlDeviceGetPowerManagementLimit = (DeviceGetPowerManagementLimit)nvmlLib.resolve("nvmlDeviceGetPowerManagementLimit");
+    DeviceGetPowerManagementDefaultLimit nvmlDeviceGetPowerManagementDefaultLimit = (DeviceGetPowerManagementLimit)nvmlLib.resolve("nvmlDeviceGetPowerManagementDefaultLimit");
     DeviceGetMemClkVfOffset nvmlDeviceGetMemClkVfOffset = (DeviceGetMemClkVfOffset)nvmlLib.resolve("nvmlDeviceGetMemClkVfOffset");
     DeviceGetGpcClkVfOffset nvmlDeviceGetGpcClkVfOffset = (DeviceGetGpcClkVfOffset)nvmlLib.resolve("nvmlDeviceGetGpcClkVfOffset");
     SystemGetDriverVersion nvmlSystemGetDriverVersion = (SystemGetDriverVersion)nvmlLib.resolve("nvmlSystemGetDriverVersion");
@@ -67,6 +72,9 @@ int main(int argc, char *argv[])
     DeviceGetEncoderCapacity nvmlDeviceGetEncoderCapacity = (DeviceGetEncoderCapacity)nvmlLib.resolve("nvmlDeviceGetEncoderCapacity");
     DeviceGetEncoderUtilization nvmlDeviceGetEncoderUtilization = (DeviceGetEncoderUtilization)nvmlLib.resolve("nvmlDeviceGetEncoderUtilization");
     DeviceGetDecoderUtilization nvmlDeviceGetDecoderUtilization = (DeviceGetDecoderUtilization)nvmlLib.resolve("nvmlDeviceGetDecoderUtilization");
+    DeviceSetPowerManagementLimit nvmlDeviceSetPowerManagementLimit = (DeviceSetPowerManagementLimit)nvmlLib.resolve("nvmlDeviceSetPowerManagementLimit");
+    DeviceGetUtilizationRates nvmlDeviceGetUtilizationRates = (DeviceGetUtilizationRates)nvmlLib.resolve("nvmlDeviceGetUtilizationRates");
+    DeviceGetVbiosVersion nvmlDeviceGetVbiosVersion = (DeviceGetVbiosVersion)nvmlLib.resolve("nvmlDeviceGetVbiosVersion");
 
     nvmlInit();
 
@@ -90,6 +98,9 @@ int main(int argc, char *argv[])
         nvmlBrandType_t brd;
         nvlmDeviceGetBrand(card,brd);
         qDebug("Card %u is of kind %s (%u)",i,X::brand[brd],brd);
+        char biosv[NVML_DEVICE_VBIOS_VERSION_BUFFER_SIZE];
+        nvmlDeviceGetVbiosVersion(card,biosv,NVML_DEVICE_VBIOS_VERSION_BUFFER_SIZE);
+        qDebug("Card %u has bios version %s",i,biosv);
         nvmlMemory_t *meminfo = new nvmlMemory_t;
         nvmlDeviceGetMemoryInfo(card,meminfo);
         qDebug("Card %u has %llu GB memory (%llu MB used, %llu MB free)",i,meminfo->total/1024/1024/1024,meminfo->used/1024/1024,meminfo->free/1024/1024);
@@ -121,6 +132,10 @@ int main(int argc, char *argv[])
         qDebug("Card %u Encoder usage: %u%% over %u us",i,utilisation,period);
         nvmlDeviceGetDecoderUtilization(card, &utilisation, &period);
         qDebug("Card %u Decoder usage: %u%% over %u us",i,utilisation,period);
+        nvmlUtilization_t *rate = new nvmlUtilization_t;
+        nvmlDeviceGetUtilizationRates(card,rate);
+        qDebug("Card %u GPU usage: %u%%",i,rate->gpu);
+        qDebug("Card %u Mem read/write bandwith usage: %u%%",i,rate->memory);
         unsigned int clockDie,clockRam;
         nvmlDeviceGetClock(card,NVML_CLOCK_GRAPHICS,NVML_CLOCK_ID_CURRENT,&clockDie);
         nvmlDeviceGetClock(card,NVML_CLOCK_MEM,NVML_CLOCK_ID_CURRENT,&clockRam);
@@ -143,11 +158,12 @@ int main(int argc, char *argv[])
         nvmlDeviceGetMemClkVfOffset(card,&offsetMem);
         nvmlDeviceGetGpcClkVfOffset(card,&offsetGPC);
         qDebug("Card %u current offset RAM %i, GPC %i",i,offsetMem,offsetGPC);
-        unsigned int plimit;
-        nvmlDeviceGetPowerManagementLimit(card,&plimit);
-        qDebug("Card %u power limit: %u W",i,plimit/1000);
-
+        unsigned int curlimit,deflimit;
+        nvmlDeviceGetPowerManagementLimit(card,&curlimit);
+        nvmlDeviceGetPowerManagementDefaultLimit(card,&deflimit);
+        qDebug("Card %u power limit: %u W (Default %u W)",i,curlimit/1000,deflimit/1000);
         delete(meminfo);
+        delete(rate);
     }
 
     nvmlShutdown();

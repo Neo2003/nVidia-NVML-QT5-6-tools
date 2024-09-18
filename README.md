@@ -24,6 +24,7 @@ NVML version: 12.560.35.03
 Card Count: 1
 Card 0 name: NVIDIA GeForce RTX 3090
 Card 0 is of kind UNKNOWN (0)
+Card 0 has bios version 94.02.42.80.9F
 Card 0 has 24 GB memory (12063 MB used, 12512 MB free)
 Card 0 is operating on PCIe Gen3 (Max Gen4) 16 lines width
 Card 0 has 10496 CUDA cores
@@ -33,6 +34,8 @@ Card 0 die temperature: 49°C
 Card 0 power usage: 319.39 W (319395 mW)
 Card 0 Encoder usage: 100% over 200000 us
 Card 0 Decoder usage: 32% over 200000 us
+Card 0 GPU usage: 87%
+Card 0 Mem read/write bandwith usage: 42%
 Card 0 die clock 1965 Mhz, RAM clock 9751 Mhz
 Card 0 has 2 fans
   Card 0 fan 0 speed: 46%
@@ -41,7 +44,7 @@ Card 0 clock allowed offsets:
   RAM min -2000, RAM max 6000
   GPC min -1000, GPC max 1000
 Card 0 current offset RAM 0, GPC 0
-Card 0 power limit: 350 W
+Card 0 power limit: 360 W (Default 350 W)
 ```
 This one is using CMAKE, so to compile it:
 
