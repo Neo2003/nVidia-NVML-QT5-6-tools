@@ -6,34 +6,39 @@ struct X {
 };
 const char* X::brand[] = {"UNKNOWN","QUADRO","TESLA","NVS","GRID","GEFORCE","TITAN","NVIDIA_VAPPS","NVIDIA_VPC","NVIDIA_VCS","NVIDIA_VWS","NVIDIA_CLOUD_GAMING","QUADRO_RTX","NVIDIA_RTX","NVIDIA","GEFORCE_RTX","TITAN_RTX"};
 
-typedef int (*Init)();
-typedef int (*GetDeviceCount)(unsigned int*);
-typedef int (*DeviceGetHandleByIndex)(unsigned int, nvmlDevice_t*);
-typedef int (*DeviceGetName)(nvmlDevice_t,char*,int);
-typedef int (*DeviceGetTemperature)(nvmlDevice_t,nvmlTemperatureSensors_t,unsigned int*);
-typedef int (*DeviceGetPowerUsage)(nvmlDevice_t,unsigned int*);
-typedef int (*DeviceGetNumFans)(nvmlDevice_t,unsigned int*);
-typedef int (*DeviceGetFanSpeed)(nvmlDevice_t,unsigned int,unsigned int*);
-typedef int (*DeviceSetFanControlPolicy)(nvmlDevice_t,unsigned int,nvmlFanControlPolicy_t);
-typedef int (*DeviceSetFanSpeed)(nvmlDevice_t,unsigned int,unsigned int);
-typedef int (*DeviceGetNumGpuCores)(nvmlDevice_t,unsigned int*);
-typedef int (*DeviceGetClock)(nvmlDevice_t,nvmlClockType_t,nvmlClockId_t,unsigned int*);
-typedef int (*DeviceGetBrand)(nvmlDevice_t,nvmlBrandType_t);
-typedef int (*DeviceGetCurrPcieLinkGeneration)(nvmlDevice_t,unsigned int*);
-typedef int (*DeviceGetCurrPcieLinkWidth)(nvmlDevice_t,unsigned int*);
-typedef int (*DeviceGetGpuMaxPcieLinkGeneration)(nvmlDevice_t,unsigned int*);
-typedef int (*DeviceGetMemoryInfo)(nvmlDevice_t,nvmlMemory_t*);
-typedef int (*DeviceGetGpcClkMinMaxVfOffset)(nvmlDevice_t,int*,int*);
-typedef int (*DeviceGetMemClkMinMaxVfOffset)(nvmlDevice_t,int*,int*);
-typedef int (*DeviceGetPowerManagementLimit)(nvmlDevice_t,unsigned int*);
-typedef int (*DeviceGetMemClkVfOffset)(nvmlDevice_t,int*);
-typedef int (*DeviceGetGpcClkVfOffset)(nvmlDevice_t,int*);
+typedef nvmlReturn_t (*Init_v2)();
+typedef nvmlReturn_t (*Shutdown)();
+typedef nvmlReturn_t (*GetDeviceCount)(unsigned int*);
+typedef nvmlReturn_t (*DeviceGetHandleByIndex)(unsigned int, nvmlDevice_t*);
+typedef nvmlReturn_t (*DeviceGetName)(nvmlDevice_t,char*,int);
+typedef nvmlReturn_t (*DeviceGetTemperature)(nvmlDevice_t,nvmlTemperatureSensors_t,unsigned int*);
+typedef nvmlReturn_t (*DeviceGetPowerUsage)(nvmlDevice_t,unsigned int*);
+typedef nvmlReturn_t (*DeviceGetNumFans)(nvmlDevice_t,unsigned int*);
+typedef nvmlReturn_t (*DeviceGetFanSpeed)(nvmlDevice_t,unsigned int,unsigned int*);
+typedef nvmlReturn_t (*DeviceSetFanControlPolicy)(nvmlDevice_t,unsigned int,nvmlFanControlPolicy_t);
+typedef nvmlReturn_t (*DeviceSetFanSpeed)(nvmlDevice_t,unsigned int,unsigned int);
+typedef nvmlReturn_t (*DeviceGetNumGpuCores)(nvmlDevice_t,unsigned int*);
+typedef nvmlReturn_t (*DeviceGetClock)(nvmlDevice_t,nvmlClockType_t,nvmlClockId_t,unsigned int*);
+typedef nvmlReturn_t (*DeviceGetBrand)(nvmlDevice_t,nvmlBrandType_t);
+typedef nvmlReturn_t (*DeviceGetCurrPcieLinkGeneration)(nvmlDevice_t,unsigned int*);
+typedef nvmlReturn_t (*DeviceGetCurrPcieLinkWidth)(nvmlDevice_t,unsigned int*);
+typedef nvmlReturn_t (*DeviceGetGpuMaxPcieLinkGeneration)(nvmlDevice_t,unsigned int*);
+typedef nvmlReturn_t (*DeviceGetMemoryInfo)(nvmlDevice_t,nvmlMemory_t*);
+typedef nvmlReturn_t (*DeviceGetGpcClkMinMaxVfOffset)(nvmlDevice_t,int*,int*);
+typedef nvmlReturn_t (*DeviceGetMemClkMinMaxVfOffset)(nvmlDevice_t,int*,int*);
+typedef nvmlReturn_t (*DeviceGetPowerManagementLimit)(nvmlDevice_t,unsigned int*);
+typedef nvmlReturn_t (*DeviceGetMemClkVfOffset)(nvmlDevice_t,int*);
+typedef nvmlReturn_t (*DeviceGetGpcClkVfOffset)(nvmlDevice_t,int*);
+typedef nvmlReturn_t (*SystemGetDriverVersion)(char*,unsigned int);
+typedef nvmlReturn_t (*SystemGetNVMLVersion)(char*,unsigned int);
+typedef nvmlReturn_t (*DeviceGetEncoderCapacity)(nvmlDevice_t,nvmlEncoderType_t,unsigned int*);
 
 int main(int argc, char *argv[])
 {
     QLibrary nvmlLib("libnvidia-ml.so.1");
         
-    Init nvmlInit = (Init)nvmlLib.resolve("nvmlInit_v2");
+    Init_v2 nvmlInit_v2 = (Init_v2)nvmlLib.resolve("nvmlInit_v2");
+    Shutdown nvmlShutdown = (Shutdown)nvmlLib.resolve("nvmlShutdown");
     GetDeviceCount nvmlGetDeviceCount = (GetDeviceCount)nvmlLib.resolve("nvmlDeviceGetCount_v2");
     DeviceGetHandleByIndex nvmlDeviceGetHandleByIndex = (DeviceGetHandleByIndex)nvmlLib.resolve("nvmlDeviceGetHandleByIndex_v2");
     DeviceGetName nvmlDeviceGetName = (DeviceGetName)nvmlLib.resolve("nvmlDeviceGetName");
@@ -55,13 +60,22 @@ int main(int argc, char *argv[])
     DeviceGetPowerManagementLimit nvmlDeviceGetPowerManagementLimit = (DeviceGetPowerManagementLimit)nvmlLib.resolve("nvmlDeviceGetPowerManagementLimit");
     DeviceGetMemClkVfOffset nvmlDeviceGetMemClkVfOffset = (DeviceGetMemClkVfOffset)nvmlLib.resolve("nvmlDeviceGetMemClkVfOffset");
     DeviceGetGpcClkVfOffset nvmlDeviceGetGpcClkVfOffset = (DeviceGetGpcClkVfOffset)nvmlLib.resolve("nvmlDeviceGetGpcClkVfOffset");
+    SystemGetDriverVersion nvmlSystemGetDriverVersion = (SystemGetDriverVersion)nvmlLib.resolve("nvmlSystemGetDriverVersion");
+    SystemGetNVMLVersion nvmlSystemGetNVMLVersion = (SystemGetNVMLVersion)nvmlLib.resolve("nvmlSystemGetNVMLVersion");
+    DeviceGetEncoderCapacity nvmlDeviceGetEncoderCapacity = (DeviceGetEncoderCapacity)nvmlLib.resolve("nvmlDeviceGetEncoderCapacity");
+
+    nvmlInit_v2();
+
+    char driverVersion[NVML_SYSTEM_DRIVER_VERSION_BUFFER_SIZE];
+    nvmlSystemGetDriverVersion(driverVersion, NVML_SYSTEM_DRIVER_VERSION_BUFFER_SIZE);
+    qDebug(QString::asprintf("Driver version: %s",driverVersion).toStdString().c_str());
+    char nvmlVersion[NVML_SYSTEM_NVML_VERSION_BUFFER_SIZE];
+    nvmlSystemGetNVMLVersion(nvmlVersion,NVML_SYSTEM_NVML_VERSION_BUFFER_SIZE);
+    qDebug(QString::asprintf("NVML version: %s",nvmlVersion).toStdString().c_str());
     
-    nvmlInit();
-        
     unsigned int cardCount;
     nvmlGetDeviceCount(&cardCount);
     qDebug(QString::asprintf("Card Count: %u",cardCount).toStdString().c_str());
-        
     for (unsigned int i=0;i<cardCount;i++)
     {
         nvmlDevice_t card;
@@ -74,7 +88,7 @@ int main(int argc, char *argv[])
         qDebug(QString::asprintf("Card %u is of kind %s (%u)",i,X::brand[brd],brd).toStdString().c_str());
         nvmlMemory_t *meminfo = new nvmlMemory_t;
         nvmlDeviceGetMemoryInfo(card,meminfo);
-        qDebug(QString::asprintf("Card %u has %u GB memory (%u MB used, %u MB free)",i,meminfo->total/1024/1024/1024,meminfo->used/1024/1024,meminfo->free/1024/1024).toStdString().c_str());
+        qDebug(QString::asprintf("Card %u has %llu GB memory (%llu MB used, %llu MB free)",i,meminfo->total/1024/1024/1024,meminfo->used/1024/1024,meminfo->free/1024/1024).toStdString().c_str());
         unsigned int pcigen,pcimaxgen,pciwidth;
         nvmlDeviceGetCurrPcieLinkGeneration(card,&pcigen);
         nvmlDeviceGetCurrPcieLinkWidth(card,&pciwidth);
@@ -83,6 +97,14 @@ int main(int argc, char *argv[])
         unsigned int coreNb;
         nvlmDeviceGetNumGpuCores(card, &coreNb);
         qDebug(QString::asprintf("Card %u has %u CUDA cores",i,coreNb).toStdString().c_str());
+        unsigned int encoderCapacityH264, encoderCapacityHEVC, encoderCapacityAV1;
+        nvmlDeviceGetEncoderCapacity(card, nvmlEncoderType_t::NVML_ENCODER_QUERY_H264, &encoderCapacityH264);
+        nvmlDeviceGetEncoderCapacity(card, nvmlEncoderType_t::NVML_ENCODER_QUERY_HEVC, &encoderCapacityHEVC);
+        nvmlDeviceGetEncoderCapacity(card, nvmlEncoderType_t::NVML_ENCODER_QUERY_AV1, &encoderCapacityAV1);
+        encoderCapacityH264 = (encoderCapacityH264 > 100) ? 0 : encoderCapacityH264;
+        encoderCapacityHEVC = (encoderCapacityHEVC > 100) ? 0 : encoderCapacityHEVC;
+        encoderCapacityAV1 = (encoderCapacityAV1 > 100) ? 0 : encoderCapacityAV1;
+        qDebug(QString::asprintf("Card %u encoder capacity\n  H264: %u%, HEVC: %u%, AV1: %u%",i,encoderCapacityH264,encoderCapacityHEVC,encoderCapacityAV1).toStdString().c_str());
         unsigned int temp;
         nvmlDeviceGetTemperature(card,NVML_TEMPERATURE_GPU,&temp);
         qDebug(QString::asprintf("Card %u die temperature: %u°C",i,temp).toStdString().c_str());
@@ -114,5 +136,10 @@ int main(int argc, char *argv[])
         unsigned int plimit;
         nvmlDeviceGetPowerManagementLimit(card,&plimit);
         qDebug(QString::asprintf("Card %u power limit: %u W",i,plimit/1000).toStdString().c_str());
+
+        delete(meminfo);
     }
+
+    nvmlShutdown();
+    return(0);
 }

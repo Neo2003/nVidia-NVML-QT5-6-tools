@@ -6,9 +6,10 @@
 #include <QLibrary>
 #include "../include/nvml.h"
 
-typedef int (*Init)();
-typedef int (*DeviceGetHandleByIndex)(unsigned int, nvmlDevice_t*);
-typedef int (*DeviceSetFanSpeed)(nvmlDevice_t,unsigned int,unsigned int);
+typedef nvmlReturn_t (*Init)();
+typedef nvmlReturn_t (*Shutdown)();
+typedef nvmlReturn_t (*DeviceGetHandleByIndex)(unsigned int, nvmlDevice_t*);
+typedef nvmlReturn_t (*DeviceSetFanSpeed)(nvmlDevice_t,unsigned int,unsigned int);
 
 class nvwrite : public QObject
 {
@@ -22,16 +23,20 @@ class nvwrite : public QObject
             
             QLibrary nvmlLib("libnvidia-ml.so.1");
             Init nvmlInit = (Init)nvmlLib.resolve("nvmlInit_v2");
+            nvmlShutdown = (Shutdown)nvmlLib.resolve("nvmlShutdown");
             nvmlDeviceGetHandleByIndex = (DeviceGetHandleByIndex)nvmlLib.resolve("nvmlDeviceGetHandleByIndex_v2");
             nvmlDeviceSetFanSpeed =(DeviceSetFanSpeed)nvmlLib.resolve("nvmlDeviceSetFanSpeed_v2");
             
             nvmlInit();
         }
-
+        ~nvwrite()
+        {
+            nvmlShutdown();
+        }
     private:
         DeviceGetHandleByIndex nvmlDeviceGetHandleByIndex;
         DeviceSetFanSpeed nvmlDeviceSetFanSpeed;
-        
+        Shutdown nvmlShutdown;
         void setFan(unsigned int cardnb, unsigned int fannb, unsigned int value)
         {
             nvmlDevice_t card;

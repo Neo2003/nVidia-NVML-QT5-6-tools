@@ -34,14 +34,16 @@ private:
     int fanvalue, fanoldvalue;
     QProcess *nvmlCmd;
     
-    typedef int (*Init)();
-    typedef int (*DeviceGetHandleByIndex)(unsigned int, nvmlDevice_t*);
-    typedef int (*DeviceGetTemperature)(nvmlDevice_t,nvmlTemperatureSensors_t,unsigned int*);
-    typedef int (*DeviceGetPowerUsage)(nvmlDevice_t,unsigned int*);
+    typedef nvmlReturn_t (*Init)();
+    typedef nvmlReturn_t (*Shutdown)();
+    typedef nvmlReturn_t (*DeviceGetHandleByIndex)(unsigned int, nvmlDevice_t*);
+    typedef nvmlReturn_t (*DeviceGetTemperature)(nvmlDevice_t,nvmlTemperatureSensors_t,unsigned int*);
+    typedef nvmlReturn_t (*DeviceGetPowerUsage)(nvmlDevice_t,unsigned int*);
     
     DeviceGetHandleByIndex nvmlDeviceGetHandleByIndex;
     DeviceGetTemperature nvmlDeviceGetTemperature;
     DeviceGetPowerUsage nvmlDeviceGetPowerUsage;
+    Shutdown nvmlShutdown;
     
     nvmlDevice_t card;
     

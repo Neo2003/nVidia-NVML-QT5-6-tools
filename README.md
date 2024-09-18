@@ -10,7 +10,7 @@ nVidia did a lot of work on the NVML library for the gaming cards, it is not lim
 It is not that difficult to use the NVML library from a C++ program, but most of the people do not know where to start.<br/>
 So is the goal of this repository.
 
-Foot note: I know C++ quite well and QT a bit less well, then my code tends to mix STD and QT types, so be  aware it's not that pretty.
+Foot note: I know C++ quite well and QT a bit less well, then my code tends to mix STD and QT types, so be aware it's not that pretty.
 
 ## CodeLibrary program
 I did not plan to make it executable, but I changed my mind. It contains some example queries and will enumerate your nVidia cards then display information.<br/>
@@ -19,12 +19,16 @@ It's written as simple as possible to inspire and provide examples for different
 This is what it outputs on my PC with one card only. If you have several cards installed, it will give this information for each one.
 
 ```
+Driver version: 560.35.03
+NVML version: 12.560.35.03
 Card Count: 1
 Card 0 name: NVIDIA GeForce RTX 3090
 Card 0 is of kind UNKNOWN (0)
 Card 0 has 24 GB memory (12063 MB used, 12512 MB free)
 Card 0 is operating on PCIe Gen3 (Max Gen4) 16 lines width
 Card 0 has 10496 CUDA cores
+Card 0 encoder capacity
+  H264: 100%, HEVC: 100%, AV1: 0%
 Card 0 die temperature: 49°C
 Card 0 power usage: 319.39 W (319395 mW)
 Card 0 die clock 1965 Mhz, RAM clock 9751 Mhz
@@ -54,7 +58,7 @@ Command functions: https://docs.nvidia.com/deploy/nvml-api/group__nvmlDeviceComm
 You can expand this example as much as you want.<br/>
 Just know that command functions require root privilege for most of them.
 
-This then transition well with the next one: A fan controller I wrote years ago using nVidia X tools, and ported to NVML recently when Gentoo (The linux I am using) migrated from Plasma 5 to Plasma 6.1. I feel the need to switch from Xorg to Wayland and I had to suffer from nVidia tools not working anymore. So I then ported my fan tool to NVML.
+This then transition well with the next one: A fan controller I wrote years ago using nVidia X tools, and ported to NVML recently when Gentoo (The Linux I am using) migrated from Plasma 5 to Plasma 6.1. I feel the need to switch from Xorg to Wayland and I had to suffer from nVidia tools not working anymore. So I then ported my fan tool to NVML.
 
 ## Simple Fan custom curve application
 My graphic card is a powerful one but not a proper made one. It's a Zotac RTX 3090 TI OC and it does not have a proper fan curve.<br/>
@@ -74,9 +78,9 @@ Since NVML does not require any graphic system, there is nothing to attach a coo
 ### 2 processes: user interface and root background process
 The main application is a user application, it does use NVML to query the card temperature and power consumption to draw graphics, then it computes fans speed but cannot command the card.
 
-That is why there is a second program in the Subprocess folder, it's a QT Core Application and does not have any interface. This process will be launched with root privileges and is the interface between the main graphic interface program and the NVLM library to sent commands.
+That is why there is a second program in the Subprocess folder, it's a QT Core Application and does not have any interface. This process will be launched with root privileges and is the gateway between the main graphic interface program and the NVLM library to sent commands.
 
-This program is simple, it runs forever running an event loop. It listens to STDIN, parses incoming messages and uses NVML commands.
+This program is simple, it runs forever doing an event loop. It listens to STDIN, parses incoming messages and uses NVML commands.
 I implemented only 1 command to set fans speed. The message is in this format "V,0,0,64" which is "V" for ventilation, card number, fan number, fan speed. This command would set the 1st fan of the first card to 64%.
 
 ### Compiling and setting up the root process

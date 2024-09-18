@@ -7,6 +7,7 @@ bool MainWindow::LoadNVMLLibrary()
     QLibrary nvmlLib("libnvidia-ml.so.1");
     
     Init nvmlInit = (Init)nvmlLib.resolve("nvmlInit_v2");
+    nvmlShutdown = (Shutdown)nvmlLib.resolve("nvmlShutdown");
     nvmlDeviceGetHandleByIndex = (DeviceGetHandleByIndex)nvmlLib.resolve("nvmlDeviceGetHandleByIndex_v2");
     nvmlDeviceGetTemperature = (DeviceGetTemperature)nvmlLib.resolve("nvmlDeviceGetTemperature");
     nvmlDeviceGetPowerUsage = (DeviceGetPowerUsage)nvmlLib.resolve("nvmlDeviceGetPowerUsage");
@@ -88,6 +89,7 @@ MainWindow::MainWindow(QWidget *parent) : QMainWindow(parent)
 MainWindow::~MainWindow()
 {
     nvmlCmd->write("quit\n"); // ask subprocess to end
+    nvmlShutdown();
     delete tUpdate;
     delete axisTemp;
     delete chart;
